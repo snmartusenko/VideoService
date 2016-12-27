@@ -33,10 +33,27 @@ $this->params['breadcrumbs'][] = $this->title;
             'slug',
             'status',
             'image_id',
-            'created_at',
-            'created_by',
-            'updated_at',
-            'updated_by',
+            [
+                'attribute' => 'created_at',
+                'format' => 'raw',
+                'value' => $model->getDate($model->updated_at)
+            ],
+            [
+                'attribute' => 'created_by',
+                'format' => 'raw',
+                'value' => $model->getCreatedBy('username')
+            ],
+
+            [
+                'attribute' => 'updated_by',
+                'format' => 'raw',
+                'value' => $model->getCreatedBy('username')
+            ],
+            [
+                'attribute' => 'updated_at',
+                'format' => 'raw',
+                'value' => $model->getDate($model->updated_at)
+            ],
         ],
     ]) ?>
 

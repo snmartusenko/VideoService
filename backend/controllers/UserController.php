@@ -4,7 +4,7 @@ namespace backend\controllers;
 
 use Yii;
 use common\models\User;
-use common\models\UserSearch;
+use backend\models\UserSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -90,6 +90,12 @@ class UserController extends Controller
             return $this->render('update', [
                 'model' => $model,
             ]);
+        }
+
+        /** * если пароль введен в форме -> устанавливаем пароль для пользователя
+         * с помошью готовой ф-ции setPassword($password) */
+        if($post['User']['password'] != null || $post['User']['password'] !== '') {
+            $model->setPassword($post['User']['password']);
         }
     }
 

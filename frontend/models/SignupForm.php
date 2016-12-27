@@ -46,13 +46,22 @@ class SignupForm extends Model
         if (!$this->validate()) {
             return null;
         }
-        
+
+        /** * SQL: SELECT * FROM 'user' ;
+         * Вытаскиваем всех пользователей с базы
+         */
+        $userExists = User::find()->all();
+
         $user = new User();
         $user->username = $this->username;
         $user->email = $this->email;
+
+        /** если в базе есть пользователи - присваиваем роль обычного пользователя, если нет - админа */
+        $user->role = $userExists ? User::ROLE_USER : User::ROLE_ADMIN;
+
         $user->setPassword($this->password);
         $user->generateAuthKey();
-        
+
         return $user->save() ? $user : null;
     }
 }

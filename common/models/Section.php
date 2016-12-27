@@ -3,6 +3,9 @@
 namespace common\models;
 
 use Yii;
+use yii\behaviors\BlameableBehavior;
+use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "section".
@@ -22,6 +25,11 @@ use Yii;
  * @property User[] $users
  * @property Topic[] $topics
  */
+
+const STATUS_ACTIVE = 10;
+const STATUS_INV = 5;
+const STATUS_DELETED = 0;
+
 class Section extends \yii\db\ActiveRecord
 {
     /**
@@ -32,6 +40,29 @@ class Section extends \yii\db\ActiveRecord
         return 'section';
     }
 
+    //функция поиска активных секций
+    public static function getActiveSectionArray()
+    {
+        return Section::findAll(['status' => Section::STATUS_ACTIVE]);
+    }
+
+    public function behaviors()
+    {
+        return [
+            'timestamp' => [
+                'class' => TimestampBehavior::className(),
+                'attributes' => [
+                    ActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at'],
+                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at']
+                ],
+            ],
+            'blameable' => [
+                'class' => BlameableBehavior::className(),
+                'createdByAttribute' => 'created_by',
+                'updatedByAttribute' => 'updated_by'
+            ],
+        ];
+    }
     /**
      * @inheritdoc
      */
@@ -95,5 +126,23 @@ class Section extends \yii\db\ActiveRecord
     public function getTopics()
     {
         return $this->hasMany(Topic::className(), ['section_id' => 'id']);
+    }
+
+    public function getCreatedBy($attribute){
+        /** @var User $user */
+        $user = User::findOne($this->created_by);
+
+        return $user->hasAttribute($attribute) ? $user->{$attribute} : $user->email;
+    }
+
+    public function getUpdatedBy($attribute){
+        /** @var User $user */
+        $user = User::findOne($this->updated);
+
+        return $user->hasAttribute($attribute) ? $user->{$attribute} : $user->email;
+    }
+
+    public function getDate($date){
+        return Yii::$app->formatter->asDate($date, 'medium');
     }
 }
