@@ -26,24 +26,20 @@ use yii\db\ActiveRecord;
  * @property Topic[] $topics
  */
 
-const STATUS_ACTIVE = 10;
-const STATUS_INV = 5;
-const STATUS_DELETED = 0;
+
 
 class Section extends \yii\db\ActiveRecord
 {
+    const STATUS_ACTIVE = 10;
+    const STATUS_INV = 5;
+    const STATUS_DELETED = 0;
+
     /**
      * @inheritdoc
      */
     public static function tableName()
     {
-        return 'section';
-    }
-
-    //функция поиска активных секций
-    public static function getActiveSectionArray()
-    {
-        return Section::findAll(['status' => Section::STATUS_ACTIVE]);
+        return '{{%section}}';
     }
 
     public function behaviors()
@@ -69,12 +65,14 @@ class Section extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'slug', 'image_id'], 'required'],
-            [['status', 'image_id', 'created_at', 'created_by', 'updated_at', 'updated_by'], 'integer'],
+            [['name', 'slug', /*'image_id'*/], 'required'],
+            [['status', 'image_id', /*'created_at', 'created_by', 'updated_at', 'updated_by'*/], 'integer'],
             [['name', 'slug'], 'string', 'max' => 255],
             [['name'], 'unique'],
             [['slug'], 'unique'],
-            [['image_id'], 'exist', 'skipOnError' => true, 'targetClass' => Image::className(), 'targetAttribute' => ['image_id' => 'id']],
+            ['image_id', 'default', 'value' => 1],
+            ['status', 'default', 'value' => STATUS_ACTIVE],
+            //[['image_id'], 'exist', 'skipOnError' => true, 'targetClass' => Image::className(), 'targetAttribute' => ['image_id' => 'id']],
         ];
     }
 
@@ -144,5 +142,11 @@ class Section extends \yii\db\ActiveRecord
 
     public function getDate($date){
         return Yii::$app->formatter->asDate($date, 'medium');
+    }
+
+    //функция поиска активных секций
+    public static function getActiveSectionArray()
+    {
+        return Section::findAll(['status' => Section::STATUS_ACTIVE]);
     }
 }

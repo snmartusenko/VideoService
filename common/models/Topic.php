@@ -3,6 +3,9 @@
 namespace common\models;
 
 use Yii;
+use yii\behaviors\BlameableBehavior;
+use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "topic".
@@ -20,14 +23,38 @@ use Yii;
  * @property Section $section
  * @property Video[] $videos
  */
+
+
 class Topic extends \yii\db\ActiveRecord
 {
+    const STATUS_ACTIVE = 10;
+    const STATUS_INV = 5;
+    const STATUS_DELETED = 0;
+
     /**
      * @inheritdoc
      */
     public static function tableName()
     {
-        return 'topic';
+        return '{{%topic}}';
+    }
+
+    public function behaviors()
+    {
+        return [
+            'timestamp' => [
+                'class' => TimestampBehavior::className(),
+                'attributes' => [
+                    ActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at'],
+                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at']
+                ],
+            ],
+            'blameable' => [
+                'class' => BlameableBehavior::className(),
+                'createdByAttribute' => 'created_by',
+                'updatedByAttribute' => 'updated_by'
+            ],
+        ];
     }
 
     /**
@@ -77,5 +104,29 @@ class Topic extends \yii\db\ActiveRecord
     public function getVideos()
     {
         return $this->hasMany(Video::className(), ['topic_id' => 'id']);
+    }
+
+    public function getCreatedBy($attribute){
+        /** @var User $user */
+        $user = User::findOne($this->created_by);
+
+        return $user->hasAttribute($attribute) ? $user->{$attribute} : $user->email;
+    }
+
+    public function getUpdatedBy($attribute){
+        /** @var User $user */
+        $user = User::findOne($this->updated);
+
+        return $user->hasAttribute($attribute) ? $user->{$attribute} : $user->email;
+    }
+
+    public function getDate($date){
+        return Yii::$app->formatter->asDate($date, 'medium');
+    }
+
+    //функция поиска активных тем (для выпадающих списков в формах Видео)
+    public static function getActiveTopicArray()
+    {
+        return Topic::findAll(['status' => Topic::STATUS_ACTIVE]);
     }
 }

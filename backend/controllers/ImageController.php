@@ -3,16 +3,17 @@
 namespace backend\controllers;
 
 use Yii;
-use common\models\Video;
-use common\models\VideoSearch;
+use common\models\Image;
+use common\models\ImageSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\web\UploadedFile;
 
 /**
- * VideoController implements the CRUD actions for Video model.
+ * ImageController implements the CRUD actions for Image model.
  */
-class VideoController extends Controller
+class ImageController extends Controller
 {
     /**
      * @inheritdoc
@@ -30,12 +31,12 @@ class VideoController extends Controller
     }
 
     /**
-     * Lists all Video models.
+     * Lists all Image models.
      * @return mixed
      */
     public function actionIndex()
     {
-        $searchModel = new VideoSearch();
+        $searchModel = new ImageSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [
@@ -45,7 +46,7 @@ class VideoController extends Controller
     }
 
     /**
-     * Displays a single Video model.
+     * Displays a single Image model.
      * @param integer $id
      * @return mixed
      */
@@ -57,20 +58,25 @@ class VideoController extends Controller
     }
 
     /**
-     * Creates a new Video model.
+     * Creates a new Image model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
     public function actionCreate()
     {
-        $model = new Video();
+        $model = new Image();
 
-        if ($model->load(Yii::$app->request->post() )) {
+        if ($model->load(Yii::$app->request->post())) {
 
+            $model->ImageForUpload = UploadedFile::getInstance($model, 'ImageForUpload');
+            $model->path = 'media/image/' . $model->ImageForUpload->baseName . '.' . $model->ImageForUpload->extension;
 
+            if ($model->upload()) {
+                // file is uploaded successfully
+                $model->save();
+                return $this->redirect(['view', 'id' => $model->id]);
+            }
 
-            $model->save();
-            return $this->redirect(['view', 'id' => $model->id]);
         } else {
             return $this->render('create', [
                 'model' => $model,
@@ -79,7 +85,7 @@ class VideoController extends Controller
     }
 
     /**
-     * Updates an existing Video model.
+     * Updates an existing Image model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param integer $id
      * @return mixed
@@ -98,7 +104,7 @@ class VideoController extends Controller
     }
 
     /**
-     * Deletes an existing Video model.
+     * Deletes an existing Image model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param integer $id
      * @return mixed
@@ -111,15 +117,15 @@ class VideoController extends Controller
     }
 
     /**
-     * Finds the Video model based on its primary key value.
+     * Finds the Image model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return Video the loaded model
+     * @return Image the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = Video::findOne($id)) !== null) {
+        if (($model = Image::findOne($id)) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');
