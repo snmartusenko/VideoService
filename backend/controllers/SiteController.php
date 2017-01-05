@@ -18,18 +18,34 @@ class SiteController extends Controller
     public function behaviors()
     {
         return [
+            //AccessControl
             'access' => [
                 'class' => AccessControl::className(),
+//                'only' => ['login', 'logout', 'signup'],
                 'rules' => [
+                    // для админа
                     [
-                        'actions' => ['login', 'error'],
                         'allow' => true,
+                        'roles' => ['admin'],
                     ],
+                    // блокировка админки от обычного пользователя
                     [
-                        'actions' => ['logout', 'index'],
+                        'actions' => ['logout', 'login', 'error'],
                         'allow' => true,
-                        'roles' => ['@'],
+                        'roles' => ['user'],
                     ],
+                    // блокировка админки от неизвестного посетителя
+                    [
+                        'actions' => ['logout', 'login', 'error'],
+                        'allow' => true,
+                        'roles' => ['?'],
+                    ],
+//                    // для зарегистрированного посетителя
+//                    [
+//                        'actions' => ['logout', 'index'],
+//                        'allow' => true,
+//                        'roles' => ['@'],
+//                    ],
                 ],
             ],
             'verbs' => [
