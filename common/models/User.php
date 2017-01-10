@@ -31,6 +31,7 @@ class User extends ActiveRecord implements IdentityInterface
     const ROLE_USER = 0;
 
     public $password;
+    public $section_id;
 
     /**
      * @inheritdoc
@@ -56,9 +57,25 @@ class User extends ActiveRecord implements IdentityInterface
     public function rules()
     {
         return [
+
+            [['status', 'role'], 'integer'],
+            [['username', 'password'], 'string'],
+            [['email'], 'email'],
             ['status', 'default', 'value' => self::STATUS_ACTIVE],
             ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
             ['role', 'default', 'value' => self::ROLE_USER],
+            [['username', 'email', 'status', 'role', 'password'], 'required'],
+        ];
+    }
+
+    public function attributeLabels()
+    {
+        return [
+            'id' => 'ID',
+            'username' => 'Name',
+            'status' => 'Status',
+            'section_id' => 'Section',
+            'email' => 'E-mail',
         ];
     }
 
@@ -191,5 +208,44 @@ class User extends ActiveRecord implements IdentityInterface
     public function removePasswordResetToken()
     {
         $this->password_reset_token = null;
+    }
+
+    public function addSection(Section $section){
+
+        $subscriptionExists = Subscription::findOne([
+            'user_id' => $this->id,
+            'section_id' => $section->id
+        ]);
+
+        if(!$subscriptionExists){
+            $subscription = new Subscription();
+
+            $subscription->load(['Subscription' => [
+                'user_id' => $this->id,
+                'section_id' => $section->id
+            ]]);
+
+            return $subscription->save();
+        }
+
+        return true;
+    }
+
+    public function hasAccessFor(Section $section){
+
+        $subscription = Subscription::findOne([
+            'user_id' => $this->id,
+            'section_id' => $section->id
+        ]);
+
+        return $subscription ? true : false;
+    }
+
+    public function getAvailableSections(){
+
+        return Section::find()
+            ->joinWith('users')
+            ->where([User::tableName().'.id' => $this->id])
+            ->all();
     }
 }

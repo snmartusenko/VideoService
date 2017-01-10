@@ -8,6 +8,7 @@ use common\models\VideoSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\web\UploadedFile;
 use yii\filters\AccessControl;
 
 /**
@@ -102,10 +103,15 @@ class VideoController extends Controller
 
         if ($model->load(Yii::$app->request->post() )) {
 
+            $model->VideoForUpload = UploadedFile::getInstance($model, 'VideoForUpload');
+//            $model->path = Yii::$app->basePath . '/web/media/videos/' . $model->VideoForUpload->baseName . '.' . $model->VideoForUpload->extension;
+            $model->path = 'media/videos/' . $model->VideoForUpload->baseName . '.' . $model->VideoForUpload->extension;
+            if ($model->upload()) {
+                // file is uploaded successfully
+                $model->save();
+                return $this->redirect(['view', 'id' => $model->id]);
+            }
 
-
-            $model->save();
-            return $this->redirect(['view', 'id' => $model->id]);
         } else {
             return $this->render('create', [
                 'model' => $model,

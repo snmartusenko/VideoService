@@ -26,7 +26,12 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'description')->textarea()        ?>
 
-    <?= $form->field($model, 'ImageForUpload')->fileInput()      ?>
+    <?= $form->field($model, 'VideoForUpload')->fileInput()      ?>
+
+    <?= $form->field($model, 'preview_image')->dropDownList(
+        \yii\helpers\ArrayHelper::map(\common\models\Image::getAllImageArray(),'id','name'),
+        ['prompt'=>'Select image for preview']
+    ) ?>
 
 <!--    --><?//= $form->field($model, 'path')->textInput(['maxlength' => true]) ?>
 <!---->

@@ -55,6 +55,7 @@ class SignupForm extends Model
         $user = new User();
         $user->username = $this->username;
         $user->email = $this->email;
+        $user->password = $this->password;
 
         /** если в базе есть пользователи - присваиваем роль обычного пользователя, если нет - админа */
         $user->role = $userExists ? User::ROLE_USER : User::ROLE_ADMIN;

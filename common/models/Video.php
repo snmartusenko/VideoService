@@ -6,6 +6,7 @@ use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
+use yii\web\UploadedFile;
 
 /**
  * This is the model class for table "video".
@@ -28,6 +29,12 @@ use yii\db\ActiveRecord;
  */
 class Video extends \yii\db\ActiveRecord
 {
+    const STATUS_ACTIVE = 10;
+    const STATUS_INV = 5;
+    const STATUS_DELETED = 0;
+
+    public $VideoForUpload;
+
     /**
      * @inheritdoc
      */
@@ -59,13 +66,17 @@ class Video extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['name', /*'path'*/ 'description', 'topic_id', 'preview_image'], 'required'],
+
             [['status', 'topic_id', 'preview_image', 'created_at', 'created_by', 'updated_at', 'updated_by'], 'integer'],
             [['name', 'path', 'description'], 'string', 'max' => 255],
             [['name'], 'unique'],
             [['path'], 'unique'],
+            ['status', 'default', 'value' => self::STATUS_ACTIVE],
+            ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
             [['preview_image'], 'exist', 'skipOnError' => true, 'targetClass' => Image::className(), 'targetAttribute' => ['preview_image' => 'id']],
             [['topic_id'], 'exist', 'skipOnError' => true, 'targetClass' => Topic::className(), 'targetAttribute' => ['topic_id' => 'id']],
+            [['VideoForUpload'], 'file', 'skipOnEmpty' => false, 'extensions' => 'avi, mpeg'],
+            [['name', 'path', 'topic_id', 'preview_image'], 'required'],
         ];
     }
 
@@ -130,5 +141,22 @@ class Video extends \yii\db\ActiveRecord
     public function getDate($date)
     {
         return Yii::$app->formatter->asDate($date, 'medium');
+    }
+
+    // функция поиска активных записей
+    public static function getActiveVideoArray()
+    {
+        return Video::findAll(['status' => Video::STATUS_ACTIVE]);
+    }
+
+    public function upload()
+    {
+        if ($this->validate()) {
+
+            $this->VideoForUpload->saveAs($this->path, $deleteTempFile = false);
+            return true;
+        } else {
+            return false;
+        }
     }
 }

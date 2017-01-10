@@ -63,12 +63,15 @@ class Topic extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'slug', 'section_id'], 'required'],
+
             [['status', 'section_id', 'created_at', 'created_by', 'updated_at', 'updated_by'], 'integer'],
             [['name', 'slug'], 'string', 'max' => 255],
             [['name'], 'unique'],
             [['slug'], 'unique'],
+            ['status', 'default', 'value' => self::STATUS_ACTIVE],
+            ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
             [['section_id'], 'exist', 'skipOnError' => true, 'targetClass' => Section::className(), 'targetAttribute' => ['section_id' => 'id']],
+            [['name', 'slug', 'section_id'], 'required'],
         ];
     }
 
@@ -128,5 +131,11 @@ class Topic extends \yii\db\ActiveRecord
     public static function getActiveTopicArray()
     {
         return Topic::findAll(['status' => Topic::STATUS_ACTIVE]);
+    }
+
+    // функция поиска всех записей
+    public static function getAllTopicArray()
+    {
+        return Topic::find()->all();
     }
 }

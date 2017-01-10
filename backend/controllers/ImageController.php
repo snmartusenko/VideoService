@@ -104,12 +104,14 @@ class ImageController extends Controller
         if ($model->load(Yii::$app->request->post())) {
 
             $model->ImageForUpload = UploadedFile::getInstance($model, 'ImageForUpload');
-            $model->path = 'media/image/' . $model->ImageForUpload->baseName . '.' . $model->ImageForUpload->extension;
-
+//            $model->path = Yii::$app->basePath . '/web/media/images/' . $model->ImageForUpload->baseName . '.' . $model->ImageForUpload->extension;
+            $model->path = 'media/images/' . $model->ImageForUpload->baseName . '.' . $model->ImageForUpload->extension;
             if ($model->upload()) {
                 // file is uploaded successfully
-                $model->save();
-                return $this->redirect(['view', 'id' => $model->id]);
+                if ($model->save()) {
+                    return $this->redirect(['view', 'id' => $model->id]);
+                }
+                else  echo('Image saves on the disk but it is not save in the DB');
             }
 
         } else {

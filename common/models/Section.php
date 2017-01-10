@@ -65,14 +65,16 @@ class Section extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'slug', /*'image_id'*/], 'required'],
-            [['status', 'image_id', /*'created_at', 'created_by', 'updated_at', 'updated_by'*/], 'integer'],
+
+            [['status', 'image_id', 'created_at', 'created_by', 'updated_at', 'updated_by'], 'integer'],
             [['name', 'slug'], 'string', 'max' => 255],
             [['name'], 'unique'],
             [['slug'], 'unique'],
-            ['image_id', 'default', 'value' => 1],
-            ['status', 'default', 'value' => STATUS_ACTIVE],
+            ['image_id', 'default', 'value' => 1], // переделать (убрать заглушку)
+            ['status', 'default', 'value' => self::STATUS_ACTIVE],
+            ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
             //[['image_id'], 'exist', 'skipOnError' => true, 'targetClass' => Image::className(), 'targetAttribute' => ['image_id' => 'id']],
+            [['name', 'slug', /*'image_id'*/], 'required'],
         ];
     }
 
@@ -148,5 +150,11 @@ class Section extends \yii\db\ActiveRecord
     public static function getActiveSectionArray()
     {
         return Section::findAll(['status' => Section::STATUS_ACTIVE]);
+    }
+
+    // функция поиска всех записей
+    public static function getAllSectionArray()
+    {
+        return Section::find()->all();
     }
 }

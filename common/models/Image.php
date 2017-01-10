@@ -27,6 +27,10 @@ use yii\web\UploadedFile;
  */
 class Image extends \yii\db\ActiveRecord
 {
+    const STATUS_ACTIVE = 10;
+    const STATUS_INV = 5;
+    const STATUS_DELETED = 0;
+
     public $ImageForUpload;
 
     /**
@@ -60,12 +64,15 @@ class Image extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'path', 'section_id'], 'required'],
-            [['section_id', 'created_at', 'created_by', 'updated_at', 'updated_by'], 'integer'],
+
+            [['status', 'section_id', 'created_at', 'created_by', 'updated_at', 'updated_by'], 'integer'],
             [['name', 'path', 'description'], 'string', 'max' => 255],
             [['name'], 'unique'],
             [['path'], 'unique'],
-            [['ImageForUpload'], 'file', 'skipOnEmpty' => false, 'extensions' => 'png, jpg, avi'],
+            ['status', 'default', 'value' => self::STATUS_ACTIVE],
+            ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
+            [['ImageForUpload'], 'file', 'skipOnEmpty' => false, 'extensions' => 'png, jpg'],
+            [['name', 'path', 'section_id'], 'required'],
         ];
     }
 
@@ -122,11 +129,24 @@ class Image extends \yii\db\ActiveRecord
         return Yii::$app->formatter->asDate($date, 'medium');
     }
 
+    // функция поиска активных записей
+    public static function getActiveImageArray()
+    {
+        return Image::findAll(['status' => Image::STATUS_ACTIVE]);
+    }
+
+    // функция поиска всех записей
+    public static function getAllImageArray()
+    {
+        return Image::find()->all();
+    }
+
+    // загрузка с валидацией
     public function upload()
     {
         if ($this->validate()) {
 
-            $this->ImageForUpload->saveAs($this->path);
+            $this->ImageForUpload->saveAs($this->path, $deleteTempFile = false);
             return true;
         } else {
             return false;

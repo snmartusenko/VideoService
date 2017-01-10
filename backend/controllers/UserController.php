@@ -5,6 +5,7 @@ namespace backend\controllers;
 use Yii;
 use common\models\User;
 use backend\models\UserSearch;
+use common\models\Section;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -119,19 +120,37 @@ class UserController extends Controller
     {
         $model = $this->findModel($id);
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
-        } else {
-            return $this->render('update', [
-                'model' => $model,
-            ]);
+        /** @var User $user */
+        $user = Yii::$app->user->identity;
+
+        $post = Yii::$app->request->post();
+
+        $sections = $post['User']['section_id'];
+
+        //add section to user
+        if(is_array($sections)){
+            foreach ($sections as $section){
+                $sectionModel = Section::findOne($section);
+
+                if($sectionModel){
+                    $user->addSection($sectionModel);
+                }
+            }
         }
 
         /** * если пароль введен в форме -> устанавливаем пароль для пользователя
          * с помошью готовой ф-ции setPassword($password) */
-        if($post['User']['password'] != null || $post['User']['password'] !== '') {
+        if($post['User']['password'] != null || $post['User']['password'] !== ''){
             $model->setPassword($post['User']['password']);
         }
+
+        if ($model->load($post) && $model->save()) {
+            return $this->redirect(['view', 'id' => $model->id]);
+        }
+
+        return $this->render('update', [
+            'model' => $model,
+        ]);
     }
 
     /**

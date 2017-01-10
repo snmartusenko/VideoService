@@ -2,6 +2,7 @@
 
 use yii\helpers\Html;
 use yii\widgets\DetailView;
+use yii\helpers\ArrayHelper;
 
 /* @var $this yii\web\View */
 /* @var $model common\models\User */
@@ -31,6 +32,11 @@ $this->params['breadcrumbs'][] = $this->title;
             'id',
             'username',
             'role',
+            [
+                'attribute' => 'sections',
+                'format' => 'raw',
+                'value' => implode(', ', $model->getAvailableSections())
+            ],
             'auth_key',
             'password_hash',
             'password_reset_token',
