@@ -35,13 +35,45 @@ class m961221_100227_relations extends Migration
         $this->addForeignKey('fk_subscription_section', '{{%subscription}}', 'section_id', '{{%section}}', 'id');
 
         //section-image
-        $this->addForeignKey('fk_section_image', '{{%section}}', 'image_id', '{{%image}}', 'id');
         $this->createIndex('fk_section_image_idx', '{{%section}}', 'image_id');
+        $this->addForeignKey('fk_section_image', '{{%section}}', 'image_id', '{{%image}}', 'id');
     }
 
     public function down()
     {
-        echo("downgrade the DB relations\n");
+        //like-user
+        $this->dropForeignKey('fk_like_user_idx', '{{%like}}');
+        $this->dropIndex('fk_like_user_idx', '{{%like}}');
+
+        //like-video
+        $this->dropForeignKey('fk_like_video_idx', '{{%like}}');
+        $this->dropIndex('fk_like_video_idx', '{{%like}}');
+
+        //video-image
+        $this->dropForeignKey('fk_video_image_idx', '{{%video}}');
+        $this->dropIndex('fk_video_image_idx', '{{%video}}');
+
+        //video-topic
+        $this->dropForeignKey('fk_video_topic_idx', '{{%video}}');
+        $this->dropIndex('fk_video_topic_idx', '{{%video}}');
+
+        //topic-section
+        $this->dropForeignKey('fk_topic_section_idx', '{{%topic}}');
+        $this->dropIndex('fk_topic_section_idx', '{{%topic}}');
+
+        //section-image
+        $this->dropForeignKey('fk_section_image_idx', '{{%section}}');
+        $this->dropIndex('fk_section_image_idx', '{{%section}}');
+
+        //subscription-user
+        $this->dropForeignKey('fk_subscription_user_idx', '{{%subscription}}');
+        $this->dropIndex('fk_subscription_user_idx', '{{%subscription}}');
+
+        //subscription-section
+        $this->dropForeignKey('fk_subscription_section_idx', '{{%subscription}}');
+        $this->dropIndex('fk_subscription_section_idx', '{{%subscription}}');
+
+        echo("the DB relations downgrade is completed\n");
     }
 
     /*

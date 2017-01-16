@@ -27,27 +27,27 @@ class UserController extends Controller
                 'class' => AccessControl::className(),
 //                'only' => ['login', 'logout', 'signup'],
                 'rules' => [
-                    // для админа
+                    // пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
                     [
                         'allow' => true,
                         'roles' => ['admin'],
                     ],
 
-                    // блокировка админки от обычного пользователя
+                    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
                     [
                         'actions' => ['logout', 'login', 'error'],
                         'allow' => true,
                         'roles' => ['user'],
                     ],
 
-                    // блокировка админки от неизвестного посетителя
+                    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
                     [
                         'actions' => ['logout', 'login', 'error'],
                         'allow' => true,
                         'roles' => ['?'],
                     ],
 
-//                    // для зарегистрированного посетителя
+//                    // пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 //                    [
 //                        'actions' => ['logout', 'index'],
 //                        'allow' => true,
@@ -101,9 +101,38 @@ class UserController extends Controller
     {
         $model = new User();
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        /** @var User $user */
+//        $user = Yii::$app->user->identity;
+
+        $post = Yii::$app->request->post();
+
+        $sections = $post['User']['section_id'];
+
+        /** * пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ -> пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+         * пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ-пїЅпїЅпїЅ setPassword($password) */
+        if($post['User']['password'] != null || $post['User']['password'] !== ''){
+            $model->setPassword($post['User']['password']);
+        }
+
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
+        $model->generateAuthKey();
+
+        if ($model->load($post) && $model->save()) {
+            //add section to user
+            if(is_array($sections)){
+                foreach ($sections as $section){
+                    $sectionModel = Section::findOne($section);
+
+                    if($sectionModel){
+                        $model->addSection($sectionModel);
+                    }
+                }
+            }
             return $this->redirect(['view', 'id' => $model->id]);
-        } else {
+        }else{
+
+            $model->section_id = $model->getAvailableSections();
+
             return $this->render('create', [
                 'model' => $model,
             ]);
@@ -121,7 +150,7 @@ class UserController extends Controller
         $model = $this->findModel($id);
 
         /** @var User $user */
-        $user = Yii::$app->user->identity;
+//        $user = Yii::$app->user->identity;
 
         $post = Yii::$app->request->post();
 
@@ -133,24 +162,27 @@ class UserController extends Controller
                 $sectionModel = Section::findOne($section);
 
                 if($sectionModel){
-                    $user->addSection($sectionModel);
+                    $model->addSection($sectionModel);
                 }
             }
         }
 
-        /** * если пароль введен в форме -> устанавливаем пароль для пользователя
-         * с помошью готовой ф-ции setPassword($password) */
+        /** * пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ -> пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+         * пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ-пїЅпїЅпїЅ setPassword($password) */
         if($post['User']['password'] != null || $post['User']['password'] !== ''){
             $model->setPassword($post['User']['password']);
         }
 
         if ($model->load($post) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
-        }
+        }else{
 
-        return $this->render('update', [
-            'model' => $model,
-        ]);
+            $model->section_id = $model->getAvailableSections();
+
+            return $this->render('update', [
+                'model' => $model,
+            ]);
+        }
     }
 
     /**
@@ -161,7 +193,11 @@ class UserController extends Controller
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
+        $model = $this->findModel($id);
+
+        $model->removeSections($id);
+
+        $model->delete();
 
         return $this->redirect(['index']);
     }

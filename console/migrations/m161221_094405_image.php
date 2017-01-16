@@ -18,8 +18,8 @@ class m161221_094405_image extends Migration
             'path' => $this->string()->notNull()->unique(),
             'description' => $this->string()->notNull(),
             'status' => $this->integer(),
+//            'section_id' => $this->integer()->notNull(),
 
-            'section_id' => $this->integer()->notNull(),
             // created/updated at/by
             'created_at' => $this->integer(),
             'created_by' => $this->integer(),
@@ -30,7 +30,7 @@ class m161221_094405_image extends Migration
 
     public function down()
     {
-        $this->dropTable('image');
+        $this->dropTable('{{%image}}');
     }
 
     /*

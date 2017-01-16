@@ -33,7 +33,6 @@ $this->params['breadcrumbs'][] = $this->title;
             'path',
             'description',
             'status',
-            'section_id',
             [
                 'attribute' => 'created_at',
                 'format' => 'raw',

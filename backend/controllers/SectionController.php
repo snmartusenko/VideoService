@@ -4,11 +4,13 @@ namespace backend\controllers;
 
 use Yii;
 use common\models\Section;
+use common\models\Image;
 use common\models\SectionSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
+use yii\web\UploadedFile;
 
 /**
  * SectionController implements the CRUD actions for Section model.
@@ -26,27 +28,27 @@ class SectionController extends Controller
                 'class' => AccessControl::className(),
 //                'only' => ['login', 'logout', 'signup'],
                 'rules' => [
-                    // для админа
+                    // РґР»СЏ Р°РґРјРёРЅР°
                     [
                         'allow' => true,
                         'roles' => ['admin'],
                     ],
 
-                    // блокировка админки от обычного пользователя
+                    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
                     [
                         'actions' => ['logout', 'login', 'error'],
                         'allow' => true,
                         'roles' => ['user'],
                     ],
 
-                    // блокировка админки от неизвестного посетителя
+                    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
                     [
                         'actions' => ['logout', 'login', 'error'],
                         'allow' => true,
                         'roles' => ['?'],
                     ],
 
-//                    // для зарегистрированного посетителя
+//                    // пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 //                    [
 //                        'actions' => ['logout', 'index'],
 //                        'allow' => true,
@@ -100,8 +102,24 @@ class SectionController extends Controller
     {
         $model = new Section();
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+        if ($model->load(Yii::$app->request->post())) {
+
+            // Р·Р°РіСЂСѓР·РёС‚СЊ Рё СЃРѕС…СЂР°РЅРёС‚СЊ РёР·РѕР±СЂР°Р¶РµРЅРёРµ, РїРѕР»СѓС‡РёС‚СЊ Image РјРѕРґРµР»СЊ
+            $ImageModel = $model->uploadImage();
+
+            if ($ImageModel != null) {
+                $model->image_id = $ImageModel->id;
+            } else {
+                echo 'Can not load Image';
+                return false;
+            }
+
+            // СЃРѕС…СЂР°РЅРёС‚СЊ РјРѕРґРµР»СЊ СЃРµРєС†РёРё, РѕС‚РѕР±СЂР°Р·РёС‚СЊ РґРµС‚Р°Р»Рё
+            if ($model->save()) {
+                return $this->redirect(['view', 'id' => $model->id]);
+            } else {
+                echo 'Section is not save in the DB';
+            }
         } else {
             return $this->render('create', [
                 'model' => $model,
@@ -119,7 +137,7 @@ class SectionController extends Controller
     {
         $model = $this->findModel($id);
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        if ($model->load(Yii::$app->request->post()) && $model->uploadImage() && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
         } else {
             return $this->render('update', [
@@ -136,7 +154,13 @@ class SectionController extends Controller
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
+        $model = $this->findModel($id);
+
+        // СѓРґР°Р»РёС‚СЊ СЃРІСЏР·Р°РЅРЅРѕРµ СЃ СЃРµРєС†РёРµР№ РёР·РѕР±СЂР°Р¶РµРЅРёРµ
+        $model->deleteImage($model->image_id);
+
+        // СѓРґР°Р»РёС‚СЊ СЃРµРєС†РёСЋ
+        $model->delete();
 
         return $this->redirect(['index']);
     }
@@ -151,6 +175,24 @@ class SectionController extends Controller
     protected function findModel($id)
     {
         if (($model = Section::findOne($id)) !== null) {
+            return $model;
+        } else {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
+    }
+
+    protected function findSectionModel($id)
+    {
+        if (($model = Section::findOne($id)) !== null) {
+            return $model;
+        } else {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
+    }
+
+    protected function findImageModel($id)
+    {
+        if (($model = Image::findOne($id)) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');

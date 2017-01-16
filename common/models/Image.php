@@ -6,7 +6,7 @@ use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
-use yii\web\UploadedFile;
+use yii\helpers\FileHelper;
 
 /**
  * This is the model class for table "image".
@@ -16,7 +16,6 @@ use yii\web\UploadedFile;
  * @property string $path
  * @property string $description
  * @property integer $status
- * @property integer $section_id
  * @property integer $created_at
  * @property integer $created_by
  * @property integer $updated_at
@@ -28,7 +27,6 @@ use yii\web\UploadedFile;
 class Image extends \yii\db\ActiveRecord
 {
     const STATUS_ACTIVE = 10;
-    const STATUS_INV = 5;
     const STATUS_DELETED = 0;
 
     public $ImageForUpload;
@@ -65,14 +63,14 @@ class Image extends \yii\db\ActiveRecord
     {
         return [
 
-            [['status', 'section_id', 'created_at', 'created_by', 'updated_at', 'updated_by'], 'integer'],
+            [['status', 'created_at', 'created_by', 'updated_at', 'updated_by'], 'integer'],
             [['name', 'path', 'description'], 'string', 'max' => 255],
-            [['name'], 'unique'],
-            [['path'], 'unique'],
+            [['name'], 'unique', 'message' => 'This name already used'],
+            [['path'], 'unique', 'message' => 'This path already used'],
             ['status', 'default', 'value' => self::STATUS_ACTIVE],
             ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
-            [['ImageForUpload'], 'file', 'skipOnEmpty' => false, 'extensions' => 'png, jpg'],
-            [['name', 'path', 'section_id'], 'required'],
+            [['ImageForUpload'], 'file', 'skipOnEmpty' => true, 'extensions' => 'png, jpg'],
+            [['name', 'path', 'status'], 'required'],
         ];
     }
 
@@ -87,7 +85,6 @@ class Image extends \yii\db\ActiveRecord
             'path' => 'Path',
             'description' => 'Description',
             'status' => 'Status',
-            'section_id' => 'Section ID',
             'created_at' => 'Created At',
             'created_by' => 'Created By',
             'updated_at' => 'Updated At',
@@ -135,21 +132,64 @@ class Image extends \yii\db\ActiveRecord
         return Image::findAll(['status' => Image::STATUS_ACTIVE]);
     }
 
-    // функция поиска всех записей
-    public static function getAllImageArray()
+//    // функция поиска всех записей
+//    public static function getAllImageArray()
+//    {
+//        return Image::find()->all();
+//    }
+
+    public static function getImageParentFolderPath()
     {
-        return Image::find()->all();
+        return Yii::getAlias('@backend/web/');
     }
 
-    // загрузка с валидацией
-    public function upload()
+    public static function getImagesParentFolderLink()
     {
-        if ($this->validate()) {
+        return Yii::$app->request->hostInfo . '/backend/web/';
+    }
 
-            $this->ImageForUpload->saveAs($this->path, $deleteTempFile = false);
-            return true;
+    /**@param $file $ImageForUpload Сюда мы передадим обьект файла
+     * @param $folder string Имя папки, в которую мы загрузим файл
+     * @param null $id int Если нам нужно обновить картинку, а не загрузить новую, мы указываем ИД картинки в БД. По умолчанию null
+     * @return Image|null */
+    public static function uploadImageFile($file, $folder, $id = null)
+    {
+        // имя файла, не важно какое оно будет, главное чтобы не повторялось в приделе директории,
+        // первой частью имени будет оригинальное имя, а второй - текущий timestamp.
+        $imageName = $file->baseName . '_' . time();
+
+        //берем полный путь папки в которую будем загружать картинки
+        $path = self::getImageParentFolderPath();
+
+        /** сохраняем картинку */
+        $directory = $path . $folder;
+        FileHelper::createDirectory($directory, 0777);
+        $file->saveAs("$directory/$imageName." . $file->extension);
+        if ($file) {
+//            return true;
         } else {
             return false;
         }
+
+        // добавить запись в таблицу Image
+        if (!$id) {
+            $modelImage = new Image();
+        } else {
+            $modelImage = Image::findOne($id);
+            try {
+                unlink($path . "/$modelImage->path");
+            } catch (\Exception $exception) {
+                //log
+            }
+        }
+
+        $modelImage->name = $imageName;
+        $modelImage->path = $folder . "/$imageName." . $file->extension;
+        $modelImage->status = self::STATUS_ACTIVE;
+
+        if ($modelImage->save()) {
+            return $modelImage;
+        }
+        return null;
     }
 }

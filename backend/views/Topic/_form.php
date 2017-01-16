@@ -17,16 +17,19 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'slug')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'status')->dropDownList([
-        \common\models\Topic::STATUS_ACTIVE => 'Active',
-        \common\models\Topic::STATUS_INV => 'Invisible',
-        \common\models\Topic::STATUS_DELETED => 'Deleted',
-    ])
+    <?= $form->field($model, 'status')->dropDownList(
+        [
+            \common\models\User::STATUS_ACTIVE => 'Active',
+            \common\models\User::STATUS_DELETED => 'Deleted',
+        ],
+        [
+            'prompt' => 'Select a status ...'
+        ])
     ?>
 
     <?= $form->field($model, 'section_id')->dropDownList(
         \yii\helpers\ArrayHelper::map(\common\models\Section::getActiveSectionArray(),'id','name'),
-        ['prompt'=>'Select section']
+        ['prompt'=>'Select a section ...']
     ) ?>
 
 <!--    --><?//= $form->field($model, 'created_at')->fileInput() ?>

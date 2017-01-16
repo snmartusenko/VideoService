@@ -60,7 +60,9 @@ class User extends ActiveRecord implements IdentityInterface
 
             [['status', 'role'], 'integer'],
             [['username', 'password'], 'string'],
-            [['email'], 'email'],
+            [['email'], 'email', 'message' => 'Not valid e-mail'],
+            [['email'], 'unique', 'message' => 'This email already used'],
+//            [['username'], 'unique', 'message' => 'This username already used'],
             ['status', 'default', 'value' => self::STATUS_ACTIVE],
             ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
             ['role', 'default', 'value' => self::ROLE_USER],
@@ -136,7 +138,7 @@ class User extends ActiveRecord implements IdentityInterface
             return false;
         }
 
-        $timestamp = (int) substr($token, strrpos($token, '_') + 1);
+        $timestamp = (int)substr($token, strrpos($token, '_') + 1);
         $expire = Yii::$app->params['user.passwordResetTokenExpire'];
         return $timestamp + $expire >= time();
     }
@@ -210,14 +212,15 @@ class User extends ActiveRecord implements IdentityInterface
         $this->password_reset_token = null;
     }
 
-    public function addSection(Section $section){
+    public function addSection(Section $section)
+    {
 
         $subscriptionExists = Subscription::findOne([
             'user_id' => $this->id,
             'section_id' => $section->id
         ]);
 
-        if(!$subscriptionExists){
+        if (!$subscriptionExists) {
             $subscription = new Subscription();
 
             $subscription->load(['Subscription' => [
@@ -231,7 +234,25 @@ class User extends ActiveRecord implements IdentityInterface
         return true;
     }
 
-    public function hasAccessFor(Section $section){
+    public function removeSections($userId)
+    {
+
+        $subscriptionSections = Subscription::findAll([
+            'user_id' => $userId,
+        ]);
+
+        if ($subscriptionSections) {
+
+            foreach($subscriptionSections as $section) {
+                $section->delete();
+            }
+        }
+
+        return true;
+    }
+
+    public function hasAccessFor(Section $section)
+    {
 
         $subscription = Subscription::findOne([
             'user_id' => $this->id,
@@ -241,11 +262,17 @@ class User extends ActiveRecord implements IdentityInterface
         return $subscription ? true : false;
     }
 
-    public function getAvailableSections(){
+    public function getAvailableSections()
+    {
 
         return Section::find()
             ->joinWith('users')
-            ->where([User::tableName().'.id' => $this->id])
+            ->where([User::tableName() . '.id' => $this->id])
             ->all();
+    }
+
+    public function getDate($date)
+    {
+        return Yii::$app->formatter->asDate($date, 'medium');
     }
 }

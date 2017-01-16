@@ -18,10 +18,22 @@ use yii\widgets\ActiveForm;
 
 <!--    --><?//= $form->field($model, 'description')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'section_id')->dropDownList(
-        \yii\helpers\ArrayHelper::map(\common\models\Section::getActiveSectionArray(),'id','name'),
-        ['prompt'=>'Select section']
-    ) ?>
+<!--    --><?//= $form->field($model, 'section_id')->dropDownList(
+//        \yii\helpers\ArrayHelper::map(\common\models\Section::getActiveSectionArray(),'id','name'),
+//        ['prompt'=>'Select section']
+//    ) ?>
+
+    <?= $form->field($model, 'description')->textarea()        ?>
+
+    <?= $form->field($model, 'status')->dropDownList(
+        [
+            \common\models\User::STATUS_ACTIVE => 'Active',
+            \common\models\User::STATUS_DELETED => 'Deleted',
+        ],
+        [
+            'prompt' => 'Select a status ...'
+        ])
+    ?>
 
     <?= $form->field($model, 'ImageForUpload')->fileInput()      ?>
 

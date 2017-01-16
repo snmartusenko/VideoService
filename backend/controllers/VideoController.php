@@ -4,6 +4,7 @@ namespace backend\controllers;
 
 use Yii;
 use common\models\Video;
+use common\models\Image;
 use common\models\VideoSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -103,13 +104,23 @@ class VideoController extends Controller
 
         if ($model->load(Yii::$app->request->post() )) {
 
-            $model->VideoForUpload = UploadedFile::getInstance($model, 'VideoForUpload');
-//            $model->path = Yii::$app->basePath . '/web/media/videos/' . $model->VideoForUpload->baseName . '.' . $model->VideoForUpload->extension;
-            $model->path = 'media/videos/' . $model->VideoForUpload->baseName . '.' . $model->VideoForUpload->extension;
-            if ($model->upload()) {
+            // загрузить и сохранить изображение, получить Image модель
+            $ImageModel = $model->uploadImage();
+
+            if ($ImageModel != null) {
+                $model->preview_image = $ImageModel->id;
+            } else {
+                echo 'Can not load preview image';
+                return false;
+            }
+
+            if ($model->uploadVideo()) {
                 // file is uploaded successfully
                 $model->save();
                 return $this->redirect(['view', 'id' => $model->id]);
+            } else {
+                echo 'Can not upload the video';
+                return false;
             }
 
         } else {

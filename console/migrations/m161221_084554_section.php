@@ -27,7 +27,7 @@ class m161221_084554_section extends Migration
 
     public function down()
     {
-        $this->dropTable('section');
+        $this->dropTable('{{%section}}');
     }
 
     /*

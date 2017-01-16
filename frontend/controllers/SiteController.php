@@ -8,6 +8,8 @@ use yii\web\Controller;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
 use common\models\LoginForm;
+use common\models\Section;
+use common\models\Image;
 use frontend\models\PasswordResetRequestForm;
 use frontend\models\ResetPasswordForm;
 use frontend\models\SignupForm;
@@ -72,7 +74,18 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
-        return $this->render('index');
+        $SectionModel = new Section();
+
+        // получить массив активных секций
+        $activeSections = Section::getActiveSectionArray();
+
+        // получить локальный путь к изображению
+        $ImagePath = $SectionModel->image->path;
+
+
+
+        // отрисовать секции
+        return $this->render('index' , ['activeSections' => $activeSections , 'ImagePath' => $ImagePath]);
     }
 
     /**

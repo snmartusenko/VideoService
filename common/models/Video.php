@@ -7,6 +7,7 @@ use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 use yii\web\UploadedFile;
+use yii\helpers\FileHelper;
 
 /**
  * This is the model class for table "video".
@@ -34,6 +35,8 @@ class Video extends \yii\db\ActiveRecord
     const STATUS_DELETED = 0;
 
     public $VideoForUpload;
+
+    public $ImageForUpload;
 
     /**
      * @inheritdoc
@@ -66,17 +69,17 @@ class Video extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-
             [['status', 'topic_id', 'preview_image', 'created_at', 'created_by', 'updated_at', 'updated_by'], 'integer'],
             [['name', 'path', 'description'], 'string', 'max' => 255],
-            [['name'], 'unique'],
-            [['path'], 'unique'],
+            [['name'], 'unique', 'message' => 'This name already used'],
+            [['path'], 'unique', 'message' => 'This path already used'],
             ['status', 'default', 'value' => self::STATUS_ACTIVE],
             ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
             [['preview_image'], 'exist', 'skipOnError' => true, 'targetClass' => Image::className(), 'targetAttribute' => ['preview_image' => 'id']],
             [['topic_id'], 'exist', 'skipOnError' => true, 'targetClass' => Topic::className(), 'targetAttribute' => ['topic_id' => 'id']],
-            [['VideoForUpload'], 'file', 'skipOnEmpty' => false, 'extensions' => 'avi, mpeg'],
-            [['name', 'path', 'topic_id', 'preview_image'], 'required'],
+            [['VideoForUpload'], 'file', 'skipOnEmpty' => true, 'extensions' => 'avi, mpg'],
+            [['ImageForUpload'], 'file', 'skipOnEmpty' => true, 'extensions' => 'png, jpg'],
+            [['name', 'path', 'status', 'topic_id', 'preview_image'], 'required'],
         ];
     }
 
@@ -143,20 +146,91 @@ class Video extends \yii\db\ActiveRecord
         return Yii::$app->formatter->asDate($date, 'medium');
     }
 
-    // функция поиска активных записей
+    // С„СѓРЅРєС†РёСЏ РїРѕРёСЃРєР° Р°РєС‚РёРІРЅС‹С… Р·Р°РїРёСЃРµР№
     public static function getActiveVideoArray()
     {
         return Video::findAll(['status' => Video::STATUS_ACTIVE]);
     }
 
-    public function upload()
+    public static function getVideoParentFolderPath()
     {
-        if ($this->validate()) {
+        return Yii::getAlias('@backend/web/');
+    }
 
-            $this->VideoForUpload->saveAs($this->path, $deleteTempFile = false);
+    public static function getVideoParentFolderLink()
+    {
+        return Yii::$app->request->hostInfo . '/backend/web/';
+    }
+
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ)
+    public function __toString()
+    {
+        return (string)$this->name;
+    }
+
+    // Upload the image
+    public function uploadImage($id = null)
+    {
+        // ???????? ???? ?? ??????
+        $file = UploadedFile::getInstance($this, 'ImageForUpload');
+
+        // ?????????
+        if($file->extension != 'jpg' && $file->extension != 'png'){
+            echo 'only jpg or png';
+        }
+
+        // ???????? ???? ?? HDD, ???????? ? ??????? Image
+        $ImageModel = Image::uploadImageFile($file, "media/images/preview", $id);
+
+        // ??????? ?????? Image
+        if ($ImageModel) {
+            return $ImageModel;
+        }else{
+            echo 'ImageModel is not exist';
+            return null;
+        }
+    }
+
+    // Upload the video
+    public function uploadVideo($id = null)
+    {
+        $file = UploadedFile::getInstance($this, 'VideoForUpload');
+        $folder = 'media/videos';
+        $videoName = self::uploadVideoFile($file, $folder, $id);
+
+        if ($videoName != null) {
+//            $this->name = $videoName;
+            $this->path = $folder . "/$videoName" . '.' . $file->extension;
+            $this->status = self::STATUS_ACTIVE;
+
             return true;
         } else {
-            return false;
+            echo 'Video is not uploaded on HDD';
         }
+    }
+
+    /**@param $file $ImageForUpload пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
+     * @param $folder string пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ, пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
+     * @param null $id int пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅ. пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ null
+     * @return Image|null */
+    public static function uploadVideoFile($file, $folder, $id = null)
+    {
+        // пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ,
+        // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ, пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ - пїЅпїЅпїЅпїЅпїЅпїЅпїЅ timestamp.
+        $videoName = $file->baseName . '_' . time();
+
+        //пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+        $path = self::getVideoParentFolderPath();
+
+        /** пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ */
+        $directory = $path . $folder;
+        FileHelper::createDirectory($directory, 0777);
+        $file->saveAs("$directory/$videoName." . $file->extension);
+        if ($file) {
+            return $videoName;
+        } else {
+            return null;
+        }
+
     }
 }

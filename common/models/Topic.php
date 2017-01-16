@@ -28,7 +28,7 @@ use yii\db\ActiveRecord;
 class Topic extends \yii\db\ActiveRecord
 {
     const STATUS_ACTIVE = 10;
-    const STATUS_INV = 5;
+//    const STATUS_INV = 5;
     const STATUS_DELETED = 0;
 
     /**
@@ -66,12 +66,12 @@ class Topic extends \yii\db\ActiveRecord
 
             [['status', 'section_id', 'created_at', 'created_by', 'updated_at', 'updated_by'], 'integer'],
             [['name', 'slug'], 'string', 'max' => 255],
-            [['name'], 'unique'],
-            [['slug'], 'unique'],
+            [['name'], 'unique', 'message' => 'This name already used'],
+            [['slug'], 'unique', 'message' => 'This slug already used'],
             ['status', 'default', 'value' => self::STATUS_ACTIVE],
             ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
             [['section_id'], 'exist', 'skipOnError' => true, 'targetClass' => Section::className(), 'targetAttribute' => ['section_id' => 'id']],
-            [['name', 'slug', 'section_id'], 'required'],
+            [['name', 'slug', 'status', 'section_id'], 'required'],
         ];
     }
 
@@ -133,9 +133,9 @@ class Topic extends \yii\db\ActiveRecord
         return Topic::findAll(['status' => Topic::STATUS_ACTIVE]);
     }
 
-    // функция поиска всех записей
-    public static function getAllTopicArray()
-    {
-        return Topic::find()->all();
-    }
+//    // функция поиска всех записей
+//    public static function getAllTopicArray()
+//    {
+//        return Topic::find()->all();
+//    }
 }

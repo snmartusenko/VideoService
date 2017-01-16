@@ -16,7 +16,22 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'slug')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'status')->textInput() ?>
+    <?= $form->field($model, 'status')->dropDownList(
+        [
+            \common\models\Section::STATUS_ACTIVE => 'Active',
+            \common\models\Section::STATUS_DELETED => 'Deleted',
+        ],
+        [
+            'prompt' => 'Select a status ...'
+        ])
+    ?>
+
+<!--    --><?//= $form->field($model, 'image_id')->dropDownList(
+//        \yii\helpers\ArrayHelper::map(\common\models\Image::getAllImageArray(),'id','name'),
+//           ['prompt'=>'Select image for section'])
+//    ?>
+
+    <?= $form->field($model, 'ImageForUpload')->fileInput(['accept' => 'image/*'])->label('Image')      ?>
 
     <!--    --><?//= $form->field($model, 'image_id')->textInput() ?>
 

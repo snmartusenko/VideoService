@@ -2,7 +2,7 @@
 
 /* @var $this yii\web\View */
 
-$this->title = 'My Yii Application';
+$this->title = 'VideoService Dashboard';
 ?>
 <div class="site-index">
 
@@ -38,13 +38,13 @@ $this->title = 'My Yii Application';
 
                 <p><a class="btn btn-default" href="/backend/video">Videos &raquo;</a></p>
             </div>
-            <div class="col-lg-4">
-                <h2>Images</h2>
-
-                <p>You can view, create, update, delete</p>
-
-                <p><a class="btn btn-default" href="/backend/image">Images &raquo;</a></p>
-            </div>
+<!--            <div class="col-lg-4">-->
+<!--                <h2>Images</h2>-->
+<!---->
+<!--                <p>You can view, create, update, delete</p>-->
+<!---->
+<!--                <p><a class="btn btn-default" href="/backend/image">Images &raquo;</a></p>-->
+<!--            </div>-->
             <div class="col-lg-4">
                 <h2>Users</h2>
 

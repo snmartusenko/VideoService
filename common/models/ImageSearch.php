@@ -18,7 +18,7 @@ class ImageSearch extends Image
     public function rules()
     {
         return [
-            [['id', 'status', 'section_id', 'created_at', 'created_by', 'updated_at', 'updated_by'], 'integer'],
+            [['id', 'status', 'created_at', 'created_by', 'updated_at', 'updated_by'], 'integer'],
             [['name', 'path', 'description'], 'safe'],
         ];
     }
@@ -61,7 +61,6 @@ class ImageSearch extends Image
         $query->andFilterWhere([
             'id' => $this->id,
             'status' => $this->status,
-            'section_id' => $this->section_id,
             'created_at' => $this->created_at,
             'created_by' => $this->created_by,
             'updated_at' => $this->updated_at,

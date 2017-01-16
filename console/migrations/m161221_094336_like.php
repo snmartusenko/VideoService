@@ -21,7 +21,7 @@ class m161221_094336_like extends Migration
 
     public function down()
     {
-        $this->dropTable('like');
+        $this->dropTable('{{%like}}');
     }
 
     /*

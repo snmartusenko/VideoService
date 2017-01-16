@@ -34,11 +34,32 @@ $this->params['breadcrumbs'][] = $this->title;
             'description',
             'status',
             'topic_id',
-            'preview_image',
-            'created_at',
-            'created_by',
-            'updated_at',
-            'updated_by',
+            [
+                'attribute' => 'preview_image',
+                'format' => ['image', ['width' => '250']],
+                'value' => \common\models\Video::getVideoParentFolderLink() . $model->preview_image->path
+            ],
+            [
+                'attribute' => 'created_at',
+                'format' => 'raw',
+                'value' => $model->getDate($model->updated_at)
+            ],
+            [
+                'attribute' => 'created_by',
+                'format' => 'raw',
+                'value' => $model->getCreatedBy('username')
+            ],
+
+            [
+                'attribute' => 'updated_by',
+                'format' => 'raw',
+                'value' => $model->getCreatedBy('username')
+            ],
+            [
+                'attribute' => 'updated_at',
+                'format' => 'raw',
+                'value' => $model->getDate($model->updated_at)
+            ],
         ],
     ]) ?>
 

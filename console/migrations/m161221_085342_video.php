@@ -33,7 +33,7 @@ class m161221_085342_video extends Migration
 
     public function down()
     {
-        $this->dropTable('video');
+        $this->dropTable('{{%video}}');
     }
 
     /*

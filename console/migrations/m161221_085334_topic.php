@@ -30,7 +30,7 @@ class m161221_085334_topic extends Migration
 
     public function down()
     {
-        $this->dropTable('topic');
+        $this->dropTable('{{%topic}}');
     }
 
     /*

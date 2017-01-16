@@ -6,6 +6,7 @@ use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
+use yii\web\UploadedFile;
 
 /**
  * This is the model class for table "section".
@@ -26,13 +27,12 @@ use yii\db\ActiveRecord;
  * @property Topic[] $topics
  */
 
-
-
 class Section extends \yii\db\ActiveRecord
 {
     const STATUS_ACTIVE = 10;
-    const STATUS_INV = 5;
     const STATUS_DELETED = 0;
+
+    public $ImageForUpload;
 
     /**
      * @inheritdoc
@@ -68,13 +68,12 @@ class Section extends \yii\db\ActiveRecord
 
             [['status', 'image_id', 'created_at', 'created_by', 'updated_at', 'updated_by'], 'integer'],
             [['name', 'slug'], 'string', 'max' => 255],
-            [['name'], 'unique'],
-            [['slug'], 'unique'],
-            ['image_id', 'default', 'value' => 1], // переделать (убрать заглушку)
+            [['name'], 'unique', 'message' => 'This name already used'],
+            [['slug'], 'unique', 'message' => 'This slug already used'],
             ['status', 'default', 'value' => self::STATUS_ACTIVE],
             ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
-            //[['image_id'], 'exist', 'skipOnError' => true, 'targetClass' => Image::className(), 'targetAttribute' => ['image_id' => 'id']],
-            [['name', 'slug', /*'image_id'*/], 'required'],
+            [['image_id'], 'exist', 'skipOnError' => true, 'targetClass' => Image::className(), 'targetAttribute' => ['image_id' => 'id']],
+            [['name', 'slug', 'status', /*'ImageForUpload'*/], 'required'],
         ];
     }
 
@@ -146,15 +145,63 @@ class Section extends \yii\db\ActiveRecord
         return Yii::$app->formatter->asDate($date, 'medium');
     }
 
-    //функция поиска активных секций
+    //пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
     public static function getActiveSectionArray()
     {
         return Section::findAll(['status' => Section::STATUS_ACTIVE]);
     }
 
-    // функция поиска всех записей
-    public static function getAllSectionArray()
+//    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+//    public static function getAllSectionArray()
+//    {
+//        return Section::find()->all();
+//    }
+
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ)
+    public function __toString()
     {
-        return Section::find()->all();
+        return (string)$this->name;
+    }
+
+//    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+//    public function uploadImage()
+//    {
+//        if ($this->validate()) {
+//
+//            $this->ImageForUpload->saveAs($this->path, $deleteTempFile = false);
+//            return true;
+//        } else {
+//            return false;
+//        }
+//    }
+
+// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+    public function uploadImage($id = null)
+    {
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+        $file = UploadedFile::getInstance($this, 'ImageForUpload');
+
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+        if($file->extension != 'jpg' && $file->extension != 'png'){
+            echo 'only jpg or png';
+        }
+
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅ HDD, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ Image
+        $ImageModel = Image::uploadImageFile($file, "media/images/sections", $id);
+
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ Image
+        if ($ImageModel) {
+            return $ImageModel;
+        }else{
+            echo 'ImageModel is not exist';
+            return null;
+        }
+    }
+
+    public function deleteImage($ImageID)
+    {
+        $a =  Image::findOne(['id' => $ImageID]);
+        $b = $a->delete();
+        return $b;
     }
 }

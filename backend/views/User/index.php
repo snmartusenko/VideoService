@@ -26,11 +26,12 @@ $this->params['breadcrumbs'][] = $this->title;
 
             'id',
             'username',
-            'auth_key',
-            'password_hash',
-            'password_reset_token',
-            // 'email:email',
-            // 'status',
+//            'auth_key',
+//            'password_hash',
+//            'password_reset_token',
+            'email:email',
+            'status',
+//            'getAvailableSections',
             // 'created_at',
             // 'updated_at',
 
