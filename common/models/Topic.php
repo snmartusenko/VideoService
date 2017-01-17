@@ -128,9 +128,16 @@ class Topic extends \yii\db\ActiveRecord
     }
 
     //функция поиска активных тем (для выпадающих списков в формах Видео)
-    public static function getActiveTopicArray()
+    public static function getActiveTopicArray($sectionID = null)
     {
-        return Topic::findAll(['status' => Topic::STATUS_ACTIVE]);
+        if ($sectionID = null) {
+            return Topic::findAll(['status' => Topic::STATUS_ACTIVE]);
+        } else {
+            return Topic::find()
+                ->where(['section_id' => $sectionID])
+                ->andWhere(['status' => Topic::STATUS_ACTIVE])
+                ->all();
+        }
     }
 
 //    // функция поиска всех записей

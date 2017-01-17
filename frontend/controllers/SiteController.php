@@ -1,6 +1,7 @@
 <?php
 namespace frontend\controllers;
 
+use common\models\Topic;
 use Yii;
 use yii\base\InvalidParamException;
 use yii\web\BadRequestHttpException;
@@ -76,16 +77,38 @@ class SiteController extends Controller
     {
         $SectionModel = new Section();
 
-        // получить массив активных секций
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
         $activeSections = Section::getActiveSectionArray();
 
-        // получить локальный путь к изображению
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         $ImagePath = $SectionModel->image->path;
 
-
-
-        // отрисовать секции
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
         return $this->render('index' , ['activeSections' => $activeSections , 'ImagePath' => $ImagePath]);
+    }
+
+    public function actionSection($id)
+    {
+        $section = Section::findOne($id);
+
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ
+//        $activeTopics = Topic::getActiveTopicArray($id);
+        $activeTopics = Topic::find()
+            ->where(['section_id' => $id])
+            ->andWhere(['status' => Topic::STATUS_ACTIVE])
+            ->all();
+
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
+        return $this->render('topic' , ['activeTopics' => $activeTopics, 'section' => $section]);
+    }
+
+    public function actionTopic($id)
+    {
+        $topic = Topic::findOne($id);
+
+        $section = Section::findOne($topic->section_id);
+
+        return $this->render('topicView' , ['section' => $section, 'topic' => $topic]);
     }
 
     /**
