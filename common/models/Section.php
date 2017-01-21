@@ -73,7 +73,7 @@ class Section extends \yii\db\ActiveRecord
             ['status', 'default', 'value' => self::STATUS_ACTIVE],
             ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
             [['image_id'], 'exist', 'skipOnError' => true, 'targetClass' => Image::className(), 'targetAttribute' => ['image_id' => 'id']],
-            [['name', 'slug', 'status', /*'ImageForUpload'*/], 'required'],
+            [['name', 'slug', 'status'], 'required'],
         ];
     }
 
@@ -151,57 +151,27 @@ class Section extends \yii\db\ActiveRecord
         return Section::findAll(['status' => Section::STATUS_ACTIVE]);
     }
 
-//    // ������� ������ ���� �������
-//    public static function getAllSectionArray()
-//    {
-//        return Section::find()->all();
-//    }
-
     // ���������� ����� ��� ������ ����� ������ ��� ��������� � ������� ��� � ������ (��� ������ ������ ��������� ������)
     public function __toString()
     {
         return (string)$this->name;
     }
 
-//    // �������� � ����������
-//    public function uploadImage()
-//    {
-//        if ($this->validate()) {
-//
-//            $this->ImageForUpload->saveAs($this->path, $deleteTempFile = false);
-//            return true;
-//        } else {
-//            return false;
-//        }
-//    }
-
-// �������� � ����������
+    // upload an image
     public function uploadImage($id = null)
     {
-        // �������� ���� �� ������
         $file = UploadedFile::getInstance($this, 'ImageForUpload');
 
-        // ���������
-        if($file->extension != 'jpg' && $file->extension != 'png'){
-            echo 'only jpg or png';
-        }
-
-        // �������� ���� �� HDD, �������� � ������� Image
-        $ImageModel = Image::uploadImageFile($file, "media/images/sections", $id);
-
-        // ������� ������ Image
-        if ($ImageModel) {
+        if ($file !== null) {
+            $ImageModel = Image::uploadImageFile($file, "media/images/sections", $id);
             return $ImageModel;
-        }else{
-            echo 'ImageModel is not exist';
-            return null;
         }
+
+        return null;
     }
 
-    public function deleteImage($ImageID)
+    public function DeactivateSection()
     {
-        $a =  Image::findOne(['id' => $ImageID]);
-        $b = $a->delete();
-        return $b;
+        return $this->status = self::STATUS_DELETED;
     }
 }

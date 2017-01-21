@@ -13,7 +13,7 @@ $this->params['breadcrumbs'][] = $this->title;
 <div class="video-index">
 
     <h1><?= Html::encode($this->title) ?></h1>
-    <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
+<!--    --><?php // echo $this->render('_search', ['model' => $searchModel]); ?>
 
     <p>
         <?= Html::a('Create Video', ['create'], ['class' => 'btn btn-success']) ?>
@@ -23,7 +23,6 @@ $this->params['breadcrumbs'][] = $this->title;
         'filterModel' => $searchModel,
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
-
             'id',
             'name',
             'path',
@@ -31,11 +30,6 @@ $this->params['breadcrumbs'][] = $this->title;
             'status',
             // 'topic_id',
             // 'preview_image',
-            // 'created_at',
-            // 'created_by',
-            // 'updated_at',
-            // 'updated_by',
-
             ['class' => 'yii\grid\ActionColumn'],
         ],
     ]); ?>

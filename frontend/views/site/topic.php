@@ -15,6 +15,8 @@ $this->params['breadcrumbs'][] = 'Section \'' . $section->name . '\'';
 
     <div class="body-content">
 
+        <h1><?= $section->name ?></h1>
+
         <?php if (isset($activeTopics)): ?>
 
             <?php foreach ($activeTopics as $topic): ?>

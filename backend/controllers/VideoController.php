@@ -102,25 +102,27 @@ class VideoController extends Controller
     {
         $model = new Video();
 
-        if ($model->load(Yii::$app->request->post() )) {
+        if ($model->load(Yii::$app->request->post())) {
 
             // загрузить и сохранить изображение, получить Image модель
             $ImageModel = $model->uploadImage();
 
-            if ($ImageModel != null) {
+            if ($ImageModel !== null) {
                 $model->preview_image = $ImageModel->id;
             } else {
-                echo 'Can not load preview image';
-                return false;
+                Yii::$app->session->setFlash('noImage', "Please select Image and Video");
+                return $this->render('create', [
+                    'model' => $model]);
             }
 
+            // upload a Video
             if ($model->uploadVideo()) {
-                // file is uploaded successfully
                 $model->save();
                 return $this->redirect(['view', 'id' => $model->id]);
             } else {
-                echo 'Can not upload the video';
-                return false;
+                Yii::$app->session->setFlash('noVideo', "Please select Image and Video");
+                return $this->render('create', [
+                    'model' => $model]);
             }
 
         } else {
@@ -140,8 +142,22 @@ class VideoController extends Controller
     {
         $model = $this->findModel($id);
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        if ($model->load(Yii::$app->request->post())) {
+
+            // upload an image
+            $ImageModel = $model->uploadImage($model->previewImage->id);
+
+            if ($ImageModel !== null) {
+                $model->preview_image = $ImageModel->id;
+            }
+
+            // upload a video
+            $model->uploadVideo($id);
+
+            // save a model
+            $model->save();
             return $this->redirect(['view', 'id' => $model->id]);
+
         } else {
             return $this->render('update', [
                 'model' => $model,
@@ -157,7 +173,11 @@ class VideoController extends Controller
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
+        $model = $this->findModel($id);
+
+        $model->DeactivateVideo();
+
+        $model->save();
 
         return $this->redirect(['index']);
     }

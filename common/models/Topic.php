@@ -127,22 +127,27 @@ class Topic extends \yii\db\ActiveRecord
         return Yii::$app->formatter->asDate($date, 'medium');
     }
 
-    //функция поиска активных тем (для выпадающих списков в формах Видео)
-    public static function getActiveTopicArray($sectionID = null)
+    //функция поиска активных тем
+    public static function getActiveTopicArray()
     {
-        if ($sectionID = null) {
-            return Topic::findAll(['status' => Topic::STATUS_ACTIVE]);
-        } else {
-            return Topic::find()
-                ->where(['section_id' => $sectionID])
-                ->andWhere(['status' => Topic::STATUS_ACTIVE])
-                ->all();
-        }
+        return Topic::findAll(['status' => Topic::STATUS_ACTIVE]);
     }
 
-//    // функция поиска всех записей
-//    public static function getAllTopicArray()
+//    //функция поиска активных тем (для выпадающих списков в формах Видео)
+//    public static function getActiveTopicArray($sectionID = null)
 //    {
-//        return Topic::find()->all();
+//        if ($sectionID = null) {
+//            return Topic::findAll(['status' => Topic::STATUS_ACTIVE]);
+//        } else {
+//            return Topic::find()
+//                ->where(['section_id' => $sectionID])
+//                ->andWhere(['status' => Topic::STATUS_ACTIVE])
+//                ->all();
+//        }
 //    }
+
+    public function DeactivateTopic()
+    {
+        return $this->status = self::STATUS_DELETED;
+    }
 }

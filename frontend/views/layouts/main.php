@@ -21,6 +21,12 @@ AppAsset::register($this);
     <?= Html::csrfMetaTags() ?>
     <title><?= Html::encode($this->title) ?></title>
     <?php $this->head() ?>
+
+    <script type="text/javascript" src="/backend/jwplayer/jwplayer.js"></script>
+    <script type="text/javascript" src="/backend/jwplayer/cjwp.js"></script>
+    <script type="text/javascript" src="/backend/jwplayer/provider.flash.js"></script>
+    <script type="text/javascript">jwplayer.key='7kZ8KfoujmqMy6LzovFAyq2VvcmVMrhC3e4LoQ=='</script>
+
 </head>
 <body>
 <?php $this->beginBody() ?>
@@ -35,7 +41,7 @@ AppAsset::register($this);
         ],
     ]);
     $menuItems = [
-        ['label' => 'Home', 'url' => ['/site/index']],
+        ['label' => 'Home', 'url' => [Yii::$app->homeUrl]],
         ['label' => 'About', 'url' => ['/site/about']],
         ['label' => 'Contact', 'url' => ['/site/contact']],
     ];

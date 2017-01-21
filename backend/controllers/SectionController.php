@@ -107,19 +107,23 @@ class SectionController extends Controller
             // загрузить и сохранить изображение, получить Image модель
             $ImageModel = $model->uploadImage();
 
-            if ($ImageModel != null) {
+            if ($ImageModel !== null) {
                 $model->image_id = $ImageModel->id;
             } else {
-                echo 'Can not load Image';
-                return false;
+                Yii::$app->session->setFlash('noImage', "Please select Image");
+                return $this->render('create', [
+                    'model' => $model]);
             }
 
             // сохранить модель секции, отобразить детали
             if ($model->save()) {
                 return $this->redirect(['view', 'id' => $model->id]);
             } else {
-                echo 'Section is not save in the DB';
+                Yii::$app->session->setFlash('noSave', "Section is not save in the DB");
+                return $this->render('create', [
+                    'model' => $model]);
             }
+
         } else {
             return $this->render('create', [
                 'model' => $model,
@@ -137,8 +141,15 @@ class SectionController extends Controller
     {
         $model = $this->findModel($id);
 
-        if ($model->load(Yii::$app->request->post()) && $model->uploadImage() && $model->save()) {
+        if ($model->load(Yii::$app->request->post())) {
+
+            // upload an image
+            $model->uploadImage($model->image_id);
+
+            // save a model
+            $model->save();
             return $this->redirect(['view', 'id' => $model->id]);
+
         } else {
             return $this->render('update', [
                 'model' => $model,
@@ -156,11 +167,9 @@ class SectionController extends Controller
     {
         $model = $this->findModel($id);
 
-        // удалить связанное с секцией изображение
-        $model->deleteImage($model->image_id);
+        $model->DeactivateSection();
 
-        // удалить секцию
-        $model->delete();
+        $model->save();
 
         return $this->redirect(['index']);
     }
@@ -175,24 +184,6 @@ class SectionController extends Controller
     protected function findModel($id)
     {
         if (($model = Section::findOne($id)) !== null) {
-            return $model;
-        } else {
-            throw new NotFoundHttpException('The requested page does not exist.');
-        }
-    }
-
-    protected function findSectionModel($id)
-    {
-        if (($model = Section::findOne($id)) !== null) {
-            return $model;
-        } else {
-            throw new NotFoundHttpException('The requested page does not exist.');
-        }
-    }
-
-    protected function findImageModel($id)
-    {
-        if (($model = Image::findOne($id)) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');

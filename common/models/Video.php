@@ -77,7 +77,7 @@ class Video extends \yii\db\ActiveRecord
             ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
             [['preview_image'], 'exist', 'skipOnError' => true, 'targetClass' => Image::className(), 'targetAttribute' => ['preview_image' => 'id']],
             [['topic_id'], 'exist', 'skipOnError' => true, 'targetClass' => Topic::className(), 'targetAttribute' => ['topic_id' => 'id']],
-            [['VideoForUpload'], 'file', 'skipOnEmpty' => true, 'extensions' => 'avi, mpg'],
+            [['VideoForUpload'], 'file', 'skipOnEmpty' => true, 'extensions' => 'mp4, flv'],
             [['ImageForUpload'], 'file', 'skipOnEmpty' => true, 'extensions' => 'png, jpg'],
             [['name', 'path', 'status', 'topic_id', 'preview_image'], 'required'],
         ];
@@ -146,10 +146,20 @@ class Video extends \yii\db\ActiveRecord
         return Yii::$app->formatter->asDate($date, 'medium');
     }
 
-    // функция поиска активных записей
+    // найти все активные видео
     public static function getActiveVideoArray()
     {
         return Video::findAll(['status' => Video::STATUS_ACTIVE]);
+    }
+
+    // найти активные видео в топике
+    public static function getActiveVideosInTopic($id)
+    {
+        return Video::find()
+            ->where(['status' => Video::STATUS_ACTIVE])
+            ->andWhere(['topic_id' => $id])
+            ->orderBy('id')
+            ->all();
     }
 
     public static function getVideoParentFolderPath()
@@ -171,42 +181,33 @@ class Video extends \yii\db\ActiveRecord
     // Upload the image
     public function uploadImage($id = null)
     {
-        // ???????? ???? ?? ??????
         $file = UploadedFile::getInstance($this, 'ImageForUpload');
 
-        // ?????????
-        if($file->extension != 'jpg' && $file->extension != 'png'){
-            echo 'only jpg or png';
-        }
-
-        // ???????? ???? ?? HDD, ???????? ? ??????? Image
-        $ImageModel = Image::uploadImageFile($file, "media/images/preview", $id);
-
-        // ??????? ?????? Image
-        if ($ImageModel) {
+        if ($file !== null) {
+            $ImageModel = Image::uploadImageFile($file, "media/images/preview", $id);
             return $ImageModel;
-        }else{
-            echo 'ImageModel is not exist';
-            return null;
         }
+
+        return null;
     }
 
     // Upload the video
     public function uploadVideo($id = null)
     {
         $file = UploadedFile::getInstance($this, 'VideoForUpload');
-        $folder = 'media/videos';
-        $videoName = self::uploadVideoFile($file, $folder, $id);
 
-        if ($videoName != null) {
-//            $this->name = $videoName;
-            $this->path = $folder . "/$videoName" . '.' . $file->extension;
-            $this->status = self::STATUS_ACTIVE;
+        if ($file !== null) {
+            $folder = 'media/videos';
+            $videoName = self::uploadVideoFile($file, $folder, $id);
 
-            return true;
-        } else {
-            echo 'Video is not uploaded on HDD';
+            if ($videoName != null) {
+                $this->path = $folder . "/$videoName" . '.' . $file->extension;
+                $this->status = self::STATUS_ACTIVE;
+                return true;
+            }
         }
+
+        return false;
     }
 
     /**@param $file $ImageForUpload ���� �� ��������� ������ �����
@@ -232,5 +233,10 @@ class Video extends \yii\db\ActiveRecord
             return null;
         }
 
+    }
+
+    public function DeactivateVideo()
+    {
+        return $this->status = self::STATUS_DELETED;
     }
 }

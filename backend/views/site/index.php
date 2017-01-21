@@ -20,35 +20,35 @@ $this->title = 'VideoService Dashboard';
             <div class="col-lg-4">
                 <h2>Sections</h2>
 
-                <p>You can view, create, update, delete</p>
+                <p>You can view, create, update, activate/deactivate</p>
 
                 <p><a class="btn btn-default" href="/backend/section">Sections &raquo;</a></p>
             </div>
             <div class="col-lg-4">
                 <h2>Topics</h2>
 
-                <p>You can view, create, update, delete</p>
+                <p>You can view, create, update, activate/deactivate</p>
 
                 <p><a class="btn btn-default" href="/backend/topic">Topics &raquo;</a></p>
             </div>
             <div class="col-lg-4">
                 <h2>Videos</h2>
 
-                <p>You can view, create, update, delete</p>
+                <p>You can view, create, update, activate/deactivate</p>
 
                 <p><a class="btn btn-default" href="/backend/video">Videos &raquo;</a></p>
             </div>
 <!--            <div class="col-lg-4">-->
 <!--                <h2>Images</h2>-->
 <!---->
-<!--                <p>You can view, create, update, delete</p>-->
+<!--                <p>You can view, create, update, activate/deactivate</p>-->
 <!---->
 <!--                <p><a class="btn btn-default" href="/backend/image">Images &raquo;</a></p>-->
 <!--            </div>-->
             <div class="col-lg-4">
                 <h2>Users</h2>
 
-                <p>You can view, create, update, delete</p>
+                <p>You can view, create, update, activate/deactivate, delete</p>
 
                 <p><a class="btn btn-default" href="/backend/user">Users &raquo;</a></p>
             </div>

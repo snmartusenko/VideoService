@@ -2,6 +2,7 @@
 namespace frontend\controllers;
 
 use common\models\Topic;
+use common\models\Video;
 use Yii;
 use yii\base\InvalidParamException;
 use yii\web\BadRequestHttpException;
@@ -92,7 +93,7 @@ class SiteController extends Controller
         $section = Section::findOne($id);
 
         // �������� ������ �������� ���
-//        $activeTopics = Topic::getActiveTopicArray($id);
+//        $activeTopics = $section->topics->activeTopicArray();
         $activeTopics = Topic::find()
             ->where(['section_id' => $id])
             ->andWhere(['status' => Topic::STATUS_ACTIVE])
@@ -108,7 +109,9 @@ class SiteController extends Controller
 
         $section = Section::findOne($topic->section_id);
 
-        return $this->render('topicView' , ['section' => $section, 'topic' => $topic]);
+        $Videos = Video::getActiveVideosInTopic($id);
+
+        return $this->render('topicView' , ['section' => $section, 'topic' => $topic, 'Videos' => $Videos]);
     }
 
     /**

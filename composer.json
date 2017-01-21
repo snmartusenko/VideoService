@@ -19,7 +19,9 @@
         "yiisoft/yii2-bootstrap": "~2.0.0",
         "yiisoft/yii2-swiftmailer": "~2.0.0",
         "2amigos/yii2-multi-select-widget": "*",
-        "kartik-v/yii2-widget-select2": "@dev"
+        "kartik-v/yii2-widget-select2": "@dev",
+        "wbraganca/yii2-videojs-widget": "~1.0",
+        "wadeshuler/yii2-jwplayer" : "*"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.0.0",

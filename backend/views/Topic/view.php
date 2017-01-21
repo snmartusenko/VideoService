@@ -32,7 +32,11 @@ $this->params['breadcrumbs'][] = $this->title;
             'name',
             'slug',
             'status',
-            'section_id',
+            [
+                'attribute' => 'section_name',
+                'format' => 'raw',
+                'value' => $model->section->name
+            ],
             [
                 'attribute' => 'created_at',
                 'format' => 'raw',

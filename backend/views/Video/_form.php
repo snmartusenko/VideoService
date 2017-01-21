@@ -35,24 +35,6 @@ use yii\widgets\ActiveForm;
 //        ['prompt'=>'Select image for preview']
 //    ) ?>
 
-<!--    --><?//= $form->field($model, 'path')->textInput(['maxlength' => true]) ?>
-<!---->
-<!--    --><?//= $form->field($model, 'description')->textInput(['maxlength' => true]) ?>
-<!---->
-<!--    --><?//= $form->field($model, 'status')->textInput() ?>
-<!---->
-<!--    --><?//= $form->field($model, 'topic_id')->textInput() ?>
-<!---->
-<!--    --><?//= $form->field($model, 'preview_image')->textInput() ?>
-<!---->
-<!--    --><?//= $form->field($model, 'created_at')->textInput() ?>
-<!---->
-<!--    --><?//= $form->field($model, 'created_by')->textInput() ?>
-<!---->
-<!--    --><?//= $form->field($model, 'updated_at')->textInput() ?>
-<!---->
-<!--    --><?//= $form->field($model, 'updated_by')->textInput() ?>
-
     <div class="form-group">
         <?= Html::submitButton($model->isNewRecord ? 'Create' : 'Update', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
     </div>

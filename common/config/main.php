@@ -26,5 +26,11 @@ return [
             'assignmentFile' => '@common/components/rbac/assignments.php',
             'ruleFile' => '@common/components/rbac/rules.php'
         ],
+
+        //JWPlayer
+        'jwplayer' => [
+            'class' => 'wadeshuler\jwplayer\JWConfig',
+            'key' => '7kZ8KfoujmqMy6LzovFAyq2VvcmVMrhC3e4LoQ==',  // <-- Your Key Here!!
+        ]
     ],
 ];

@@ -2,6 +2,7 @@
 
 use yii\helpers\Html;
 use yii\widgets\DetailView;
+use wadeshuler\jwplayer\JWPlayer;
 
 /* @var $this yii\web\View */
 /* @var $model common\models\Video */
@@ -33,11 +34,15 @@ $this->params['breadcrumbs'][] = $this->title;
             'path',
             'description',
             'status',
-            'topic_id',
+            [
+                'attribute' => 'topic_name',
+                'format' => 'raw',
+                'value' => $model->topic->name
+            ],
             [
                 'attribute' => 'preview_image',
-                'format' => ['image', ['width' => '250']],
-                'value' => \common\models\Video::getVideoParentFolderLink() . $model->preview_image->path
+                'format' => ['image', ['width' => '100']],
+                'value' => $model->VideoParentFolderLink . $model->previewImage->path
             ],
             [
                 'attribute' => 'created_at',
@@ -61,6 +66,23 @@ $this->params['breadcrumbs'][] = $this->title;
                 'value' => $model->getDate($model->updated_at)
             ],
         ],
+    ]) ?>
+
+    <?= JWPlayer::widget([
+        'htmlOptions' => [
+            'class' => 'myVideoPlayer',
+        ],
+        'playerOptions' => [
+            'title' => $model->name,
+            'file' => $model->VideoParentFolderLink . $model->path,
+            'image' => $model->VideoParentFolderLink . $model->previewImage->path,
+            'width' => '500px',
+            'height' => '300px',
+            'controls' => true,
+            'autostart' => false,
+            'mute' => false,
+            'stretching' => "uniform",
+        ]
     ]) ?>
 
 </div>

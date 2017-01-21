@@ -14,6 +14,13 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <h1><?= Html::encode($this->title) ?></h1>
 
+    <div style="color:red">
+        <h3>
+            <?= Yii::$app->session->getFlash('noImage'); ?>
+            <?= Yii::$app->session->getFlash('noSave'); ?>
+        </h3>
+    </div>
+
     <?= $this->render('_form', [
         'model' => $model,
     ]) ?>

@@ -9,7 +9,7 @@ use yii\data\ActiveDataProvider;
 /* @var $activeSections */
 
 $this->title = 'VideoService';
-$this->params['breadcrumbs'][] = $this->title;
+$this->params['breadcrumbs'][] = ['label' => 'Sections'];
 ?>
 <div class="site-index">
     <div class="body-content">
