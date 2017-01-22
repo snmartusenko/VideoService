@@ -76,16 +76,18 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
-        $SectionModel = new Section();
+//        $AvailableSections = Section::getActiveSectionArray();
 
-        // �������� ������ �������� ������
-        $activeSections = Section::getActiveSectionArray();
+        $user = Yii::$app->user;
 
-        // �������� ��������� ���� � �����������
-        $ImagePath = $SectionModel->image->path;
+        if ($user->identity) {
+            $AvailableSections = Section::getAvailableForUserSections($user->id);
+        } else {
+            Yii::$app->session->setFlash('noLogin', "Please login for Section viewing");
+            $AvailableSections = null;
+        }
 
-        // ���������� ������
-        return $this->render('index' , ['activeSections' => $activeSections , 'ImagePath' => $ImagePath]);
+        return $this->render('index', ['AvailableSections' => $AvailableSections]);
     }
 
     public function actionSection($id)
@@ -100,7 +102,7 @@ class SiteController extends Controller
             ->all();
 
         // ���������� ����
-        return $this->render('topic' , ['activeTopics' => $activeTopics, 'section' => $section]);
+        return $this->render('topic', ['activeTopics' => $activeTopics, 'section' => $section]);
     }
 
     public function actionTopic($id)
@@ -111,7 +113,7 @@ class SiteController extends Controller
 
         $Videos = Video::getActiveVideosInTopic($id);
 
-        return $this->render('topicView' , ['section' => $section, 'topic' => $topic, 'Videos' => $Videos]);
+        return $this->render('topicView', ['section' => $section, 'topic' => $topic, 'Videos' => $Videos]);
     }
 
     /**

@@ -6,7 +6,7 @@ use yii\grid\GridView;
 use yii\data\ActiveDataProvider;
 
 /* @var $this yii\web\View */
-/* @var $activeSections */
+/* @var AvailableSections */
 
 $this->title = 'VideoService';
 $this->params['breadcrumbs'][] = ['label' => 'Sections'];
@@ -14,9 +14,15 @@ $this->params['breadcrumbs'][] = ['label' => 'Sections'];
 <div class="site-index">
     <div class="body-content">
 
-        <?php if (isset($activeSections)): ?>
+        <div style="color:red">
+            <h3>
+                <?= Yii::$app->session->getFlash('noLogin'); ?>
+            </h3>
+        </div>
 
-            <?php foreach ($activeSections as $section): ?>
+        <?php if (isset($AvailableSections)): ?>
+
+            <?php foreach ($AvailableSections as $section): ?>
 
                 <div class="<!--panel panel--->default col-lg-4">
                     <!--            <div class="row">-->

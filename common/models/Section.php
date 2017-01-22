@@ -26,7 +26,6 @@ use yii\web\UploadedFile;
  * @property User[] $users
  * @property Topic[] $topics
  */
-
 class Section extends \yii\db\ActiveRecord
 {
     const STATUS_ACTIVE = 10;
@@ -59,6 +58,7 @@ class Section extends \yii\db\ActiveRecord
             ],
         ];
     }
+
     /**
      * @inheritdoc
      */
@@ -127,21 +127,24 @@ class Section extends \yii\db\ActiveRecord
         return $this->hasMany(Topic::className(), ['section_id' => 'id']);
     }
 
-    public function getCreatedBy($attribute){
+    public function getCreatedBy($attribute)
+    {
         /** @var User $user */
         $user = User::findOne($this->created_by);
 
         return $user->hasAttribute($attribute) ? $user->{$attribute} : $user->email;
     }
 
-    public function getUpdatedBy($attribute){
+    public function getUpdatedBy($attribute)
+    {
         /** @var User $user */
         $user = User::findOne($this->updated);
 
         return $user->hasAttribute($attribute) ? $user->{$attribute} : $user->email;
     }
 
-    public function getDate($date){
+    public function getDate($date)
+    {
         return Yii::$app->formatter->asDate($date, 'medium');
     }
 
@@ -149,6 +152,28 @@ class Section extends \yii\db\ActiveRecord
     public static function getActiveSectionArray()
     {
         return Section::findAll(['status' => Section::STATUS_ACTIVE]);
+    }
+
+    public static function getAvailableForUserSections($id)
+    {
+        // a variant from Yii2 documentation
+        return Section::find()
+            ->joinWith('users')
+            ->where(['section.status' => Section::STATUS_ACTIVE])
+            ->andWhere(['subscription.user_id' => $id])
+            ->all();
+
+//        // выводит все доступные для пользователя секции вместе с НЕактивными (надо доработать)
+//        $model = User::findOne($id);
+//
+//        return $model->getAvailableSections();
+
+        // working variant with Join
+//        return Section::find()
+//            ->leftJoin('subscription', 'section.id = subscription.section_id')
+//            ->where(['section.status' => Section::STATUS_ACTIVE])
+//            ->andWhere(['subscription.user_id' => $id])
+//            ->all();
     }
 
     // ���������� ����� ��� ������ ����� ������ ��� ��������� � ������� ��� � ������ (��� ������ ������ ��������� ������)
