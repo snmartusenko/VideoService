@@ -16,6 +16,9 @@ use Yii;
  */
 class Like extends \yii\db\ActiveRecord
 {
+    const STATUS_ACTIVE = 10;
+    const STATUS_DELETED = 0;
+
     /**
      * @inheritdoc
      */

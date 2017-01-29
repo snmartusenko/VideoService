@@ -1,4 +1,10 @@
 <?php
+/**
+ * Created by PhpStorm.
+ * User: Serg
+ * Date: 23.01.2017
+ * Time: 8:56
+ */
 
 use yii\helpers\Html;
 use yii\helpers\Url;
@@ -31,7 +37,7 @@ $this->params['breadcrumbs'][] = $this->title;
 //                $videoPath = Yii::getAlias('@backend') . "/web/" . $video->path;
 //                $videoPath = 'http://vjs.zencdn.net/v/oceans.mp4';
                 $imagePath = Url::to($video->VideoParentFolderLink . $video->previewImage->path);
-//                $imagePath = "http://videoservice/frontend/web/" . $video->previewImage->path // !!!СЂР°Р±РѕС‡РёР№ РїСѓС‚СЊ
+//                $imagePath = "http://videoservice/frontend/web/" . $video->previewImage->path // !!!рабочий путь
                 ?>
 
                 <h3><?= $videoName ?></h3>
@@ -53,8 +59,8 @@ $this->params['breadcrumbs'][] = $this->title;
                 ]
             ]) ?>
 
-<!--                <div>-->
-<!--                    --><?//= \wbraganca\videojs\VideoJsWidget::widget([
+                <!--                <div>-->
+                <!--                    --><?//= \wbraganca\videojs\VideoJsWidget::widget([
 //                        'options' => [
 //                            'class' => 'video-js vjs-default-skin vjs-big-play-centered',
 //                            'poster' => $imagePath,
@@ -67,34 +73,34 @@ $this->params['breadcrumbs'][] = $this->title;
 //                        ],
 //                    ]);
 //                    ?>
-<!--                </div>-->
+                <!--                </div>-->
 
-<!--                <div id="VideoPlayer_--><?//= $video->id ?><!--">Р—Р°РіСЂСѓР·РєР° РїР»РµРµСЂР°...</div>-->
-<!--                <script type="text/javascript">-->
-<!--                    jwplayer("VideoPlayer_--><?//= $video->id ?><!--").setup({-->
-<!--                        file: "--><?//= $videoPath ?><!--",-->
-<!--                        image: "--><?//= $imagePath ?><!--",-->
-<!--                        width: 400,-->
-<!--                        height: 200,-->
-<!--                        controls: true,-->
-<!--                        autostart: false,-->
-<!--                        mute: false,-->
-<!--                        stretching: "uniform",-->
-<!--                        title: "--><?//= $videoName ?><!--"-->
-<!--                    });-->
-<!--//                </script>-->
+                <!--                <div id="VideoPlayer_--><?//= $video->id ?><!--">Загрузка плеера...</div>-->
+                <!--                <script type="text/javascript">-->
+                <!--                    jwplayer("VideoPlayer_--><?//= $video->id ?><!--").setup({-->
+                <!--                        file: "--><?//= $videoPath ?><!--",-->
+                <!--                        image: "--><?//= $imagePath ?><!--",-->
+                <!--                        width: 400,-->
+                <!--                        height: 200,-->
+                <!--                        controls: true,-->
+                <!--                        autostart: false,-->
+                <!--                        mute: false,-->
+                <!--                        stretching: "uniform",-->
+                <!--                        title: "--><?//= $videoName ?><!--"-->
+                <!--                    });-->
+                <!--//                </script>-->
 
-<!--            РєРЅРѕРїРєРё-Р»Р°Р№РєРё-->
+                <!--            кнопки-лайки-->
                 <div>
                     <br/>
-                <?= Html::a('Like', ['fave/like/', 'video_id' => $video->id], ['class' => 'btn btn-primary']) ?>
-                <?= Html::a('Unlike', ['fave/unlike/', 'video_id' => $video->id], [
-                    'class' => 'btn btn-danger',
-                    'data' => [
-                        'confirm' => 'Are you sure?',
-                        'method' => 'post'
-                    ]
-                ]) ?>
+                    <?= Html::a('Like', ['site/fave/like', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
+                    <?= Html::a('Unlike', ['site/fave/unlike', 'id' => $model->id], [
+                        'class' => 'btn btn-danger',
+                        'data' => [
+                            'confirm' => 'Are you sure?',
+                            'method' => 'post',
+                        ],
+                    ]) ?>
                 </div>
 
                 <br/><br/><br/>
